@@ -1,0 +1,153 @@
+version: "3.2"
+services:
+  radarr:
+    container_name: radarr
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 7878:7878
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kathmandu
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/nirjan/docker/media-server/appdata/radarr:/config
+      - /home/nirjan/ssd/data:/data
+  sonarr:
+    container_name: sonarr
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kathmandu
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/nirjan/docker/appdata/sonarr:/config
+      - /home/nirjan/ssd/data:/data
+  bazarr:
+    container_name: bazarr
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 6767:6767
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kathmandu
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/nirjan/docker/media-server/appdata/bazarr:/config
+      - /home/nirjan/ssd/data/media:/data/media
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kathmandu
+    volumes:
+      - /home/nirjan/docker/media-server/appdata/readarr:/config
+      - /home/nirjan/ssd/data:/data
+    ports:
+      - 8787:8787
+    restart: unless-stopped
+  prowlarr:
+    image: ghcr.io/hotio/prowlarr
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kathmandu
+    volumes:
+      - /home/nirjan/docker/media-server/appdata/prowlarr:/config
+      - /home/nirjan/ssd/data:/data
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+  sabnzbd:
+    container_name: sabnzbd
+    image: lscr.io/linuxserver/sabnzbd:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 8080:8080
+      - 9090:9090
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kathmandu
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/nirjan/docker/media-server/appdata/sabnzbd:/config
+      - /home/nirjan/ssd/data/usenet:/data/usenet:rw
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /home/nirjan/docker/media-server/appdata/jellyfin:/config
+      - /home/nirjan/ssd/data/media:/data/media
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1900:1900/udp #optional
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Kathmandu
+      - PORT=5055 #optional
+    ports:
+      - 5055:5055
+    volumes:
+      - /home/nirjan/docker/media-server/appdata/jellyseerr:/app/config
+      - /home/nirjan/ssd/data/media:/data/media
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kathmandu
+      - WEBUI_PORT=8123
+      - TORRENTING_PORT=6881
+    volumes:
+      - /home/nirjan/docker/media-server/appdata/qbittorrent:/config
+      - /home/nirjan/ssd/data/torrents:/data/torrents #optional
+    ports:
+      - 8123:8123
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/London
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
